@@ -1,0 +1,2 @@
+python-dotenv
+aiogram[i18n]==3.0.0b8
