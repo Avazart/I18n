@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-13 17:54+0300\n"
-"PO-Revision-Date: 2023-08-13 17:56+0300\n"
+"POT-Creation-Date: 2023-08-13 14:13+0300\n"
+"PO-Revision-Date: 2023-08-16 15:01+0300\n"
 "Last-Translator: \n"
 "Language-Team: uk <LL@li.org>\n"
 "Language: uk\n"
@@ -20,18 +20,42 @@ msgstr ""
 "Generated-By: Babel 2.12.1\n"
 "X-Generator: Poedit 3.3.2\n"
 
-#: main.py:22 main.py:53
+#: handlers.py:21
+msgid "Hello!"
+msgstr "Привіт!"
+
+#: handlers.py:27
+msgid "Select option"
+msgstr "Виберіть опцію"
+
+#: handlers.py:33 keyboards.py:17
+msgid "Fruits"
+msgstr "Фрукти"
+
+#: handlers.py:39 keyboards.py:26
 msgid "Apple"
 msgstr "Яблуко"
 
-#: main.py:23 main.py:54
+#: handlers.py:40 keyboards.py:27
 msgid "Banana"
 msgstr "Банан"
 
-#: main.py:24 main.py:55
+#: handlers.py:41 keyboards.py:28
 msgid "Orange"
-msgstr "Aпельсин"
+msgstr "Апельсин"
 
-#: main.py:47
-msgid "Hello!"
-msgstr "Привіт!"
+#: handlers.py:53
+msgid "Languages"
+msgstr "Мови"
+
+#: handlers.py:69
+msgid "New language: {}"
+msgstr "Нова мова: {}"
+
+#: keyboards.py:16
+msgid "Language"
+msgstr "Мова"
+
+#: keyboards.py:30
+msgid "Back"
+msgstr "Назад"
