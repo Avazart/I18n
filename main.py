@@ -78,7 +78,7 @@ async def main():
     fmt = "[%(asctime)s] %(message)s (%(levelname)s) [%(name)s]"
     date_fmt = "%d.%m.%y %H:%M:%S"
     logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt=date_fmt)
-    for logger_name in ('asyncio', ):
+    for logger_name in ('asyncio',):
         logging.getLogger(logger_name).setLevel(level=logging.WARNING)
 
     logger = logging.getLogger(__name__)
@@ -92,15 +92,14 @@ async def main():
     i18n = I18n(path="locales",
                 default_locale='en',
                 domain="messages")
-    I18n.set_current(i18n)
     lang_middleware = LangMiddleware(i18n)
-    router.message.middleware(lang_middleware)
-    router.callback_query.middleware(lang_middleware)
 
+    router.message.outer_middleware(lang_middleware)
+    router.callback_query.outer_middleware(lang_middleware)
+    
+    await bot.delete_webhook()
     dp.include_router(router)
-    await dp.start_polling(bot,
-                           lang_middleware=lang_middleware,
-                           skip_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
