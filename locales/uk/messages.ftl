@@ -1,0 +1,12 @@
+locale_name=Українська
+locale_flag=🇺🇦
+hello = Вітаю! { $user }
+back = Назад
+select_option = Оберить опцію
+fruits = Фрукти
+apple = Яблуко
+banana = Банан
+orange = Апельсин
+language = Мова
+languages = Мови
+new_language = Нова мова: { $lang } { $flag }
