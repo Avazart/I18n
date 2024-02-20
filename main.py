@@ -20,6 +20,12 @@ from dotenv import load_dotenv
 
 router = Router()
 
+def get_lang_code_from_update(update: Update) -> str | None:
+    if message := update.message:
+        if from_user := message.from_user:
+            if lang_code := from_user.language_code:
+                return lang_code
+    return None
 
 class CustomBaseManager(BaseManager):
     SUPPORTED_LANG_CODES = ["en", "uk"]
@@ -38,11 +44,9 @@ class CustomBaseManager(BaseManager):
         """
         if event := kwargs.get("event"):
             if isinstance(event, Update):
-                if message := event.message:
-                    if from_user := message.from_user:
-                        if lang_code := from_user.language_code:
-                            if lang_code in self.SUPPORTED_LANG_CODES:
-                                return lang_code
+                lang_code = get_lang_code_from_update(event)
+                if lang_code and lang_code in self.SUPPORTED_LANG_CODES:
+                    return lang_code
         return self.default_locale
 
 
