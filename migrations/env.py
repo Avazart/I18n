@@ -24,8 +24,8 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 load_dotenv()
-database_url = os.environ['DATABASE_URL']
-config.set_main_option('sqlalchemy.url', database_url)
+database_url = os.environ["DATABASE_URL"]
+config.set_main_option("sqlalchemy.url", database_url)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel

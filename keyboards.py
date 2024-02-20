@@ -6,8 +6,7 @@ from aiogram_i18n.types import (
     InlineKeyboardMarkup,
 )
 
-from bot_types import LangData
-from database.models import Lang
+from bot_types import LocaleData
 
 
 def main_keyboard() -> ReplyKeyboardMarkup:
@@ -38,21 +37,17 @@ def fruits_keyboard() -> ReplyKeyboardMarkup:
     )
 
 
-def lang_keyboard(langs: list[Lang]) -> InlineKeyboardMarkup:
+def lang_keyboard(locales: dict[str, dict]) -> InlineKeyboardMarkup:
     buttons = []
-    for lang in langs:
+    for locale, info in locales.items():
         button = InlineKeyboardButton(
-            text=lang.name + " " + lang.flag, callback_data=LangData(id=lang.id).pack()
+            text=info["name"] + " " + info["flag"],
+            callback_data=LocaleData(locale=locale).pack(),
         )
         buttons.append(button)
 
     return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                button,
-            ]
-            for button in buttons
-        ]
+        inline_keyboard=[[button] for button in buttons]
     )
 
 

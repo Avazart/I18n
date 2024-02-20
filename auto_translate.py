@@ -7,15 +7,16 @@ import httpcore
 from googletrans import Translator
 from googletrans.models import Translated
 
-DEFAULT_FOLDER = 'locales'
-DEFAULT_SRC_LANG = 'en'
-PATTERN = re.compile(r'#:(.*?)\nmsgid\s(.*?)msgstr\s(.*?)\n\n',
-                     re.MULTILINE | re.DOTALL)
+DEFAULT_FOLDER = "locales"
+DEFAULT_SRC_LANG = "en"
+PATTERN = re.compile(
+    r"#:(.*?)\nmsgid\s(.*?)msgstr\s(.*?)\n\n", re.MULTILINE | re.DOTALL
+)
 
 fmt = "[%(asctime)s] %(message)s (%(levelname)s) [%(name)s]"
 date_fmt = "%d.%m.%y %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt=date_fmt)
-for logger_name in ('hpack', 'httpx'):
+for logger_name in ("hpack", "httpx"):
     logging.getLogger(logger_name).setLevel(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
@@ -29,14 +30,14 @@ def unqouted(text: str, sq='"', eq='"') -> str:
 
 
 def parse_text(text: str):
-    lines = text.strip().split('\n')
+    lines = text.strip().split("\n")
     lines = (unqouted(line.strip()) for line in lines)
     lines = (line.replace(r"\n", "\n") for line in lines)
     return "".join(lines)
 
 
 def build_text(text: str):
-    lines = text.strip().replace('\n', '\\n\n').split('\n')
+    lines = text.strip().replace("\n", "\\n\n").split("\n")
     lines = (qouted(line) for line in lines)
     return "\n".join(lines)
 
@@ -57,9 +58,8 @@ def work_with_file(target_lang, po_file: Path, translator):
             r = None
             try:
                 tr: Translated = translator.translate(
-                    msgid,
-                    dest=target_lang,
-                    src=DEFAULT_SRC_LANG)
+                    msgid, dest=target_lang, src=DEFAULT_SRC_LANG
+                )
 
                 r = build_text(tr.text)
                 logger.debug(f"{msgid} -> {r}")
@@ -83,11 +83,11 @@ def work_with_file(target_lang, po_file: Path, translator):
 def main():
     translator = Translator()
 
-    folder = Path('locales')
-    for po_file in folder.rglob('*.po'):
+    folder = Path("locales")
+    for po_file in folder.rglob("*.po"):
         target_lang = po_file.parent.parent.name
         work_with_file(target_lang, po_file, translator)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

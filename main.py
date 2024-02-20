@@ -10,14 +10,16 @@ from cachetools import LRUCache
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-import database
 from custom_manager import CustomManager
-from database.utils import upgrade_database
+from database import upgrade_database
 from handlers import router
 from settings import Settings
 
 
-async def run(settings: Settings):
+async def main():
+    load_dotenv()
+    settings = Settings()
+
     fmt = "[%(asctime)s] %(message)s (%(levelname)s) [%(name)s]"
     date_fmt = "%d.%m.%y %H:%M:%S"
     logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt=date_fmt)
@@ -35,17 +37,9 @@ async def run(settings: Settings):
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
     logger.info("Create bot instance ...")
-
     bot = Bot(token=settings.token, parse_mode="HTML")
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
-
-    lang_cache = LRUCache(maxsize=1000)
-    async with session_maker.begin() as session:
-        supported_lang_codes = frozenset(
-            lang.short for lang in await database.get_langs(session)
-        )
-
     i18n_middleware = I18nMiddleware(
         core=FluentRuntimeCore(path="locales/{locale}"),
         manager=CustomManager(),
@@ -57,15 +51,9 @@ async def run(settings: Settings):
     await dp.start_polling(
         bot,
         session_maker=session_maker,
-        lang_cache=lang_cache,
-        supported_lang_codes= supported_lang_codes
+        locales_cache=LRUCache(maxsize=1000),
+        i18n_middleware=i18n_middleware,
     )
-
-
-async def main():
-    load_dotenv()
-    settings = Settings()
-    await run(settings)
 
 
 if __name__ == "__main__":
