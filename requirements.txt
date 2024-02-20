@@ -1,7 +1,12 @@
+aiogram==3.0.0b8
+aiogram_i18n
+fluent_compiler
+fluent.runtime
+libcst
+
+sqlalchemy
+alembic
 aiosqlite
 python-dotenv
-aiogram[i18n]==3.0.0b8
 cachetools
-alembic
-sqlalchemy
 googletrans==4.0.0rc1
