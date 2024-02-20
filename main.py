@@ -2,73 +2,84 @@ import asyncio
 import logging
 import os
 from contextlib import suppress
-from typing import Optional, Dict, Any
+from typing import Any
 
 from aiogram import Dispatcher, Bot, Router, F
 from aiogram.filters import Command
-from aiogram.types import (
-    Message, ReplyKeyboardMarkup, KeyboardButton,
-    TelegramObject, CallbackQuery
+from aiogram.types import Message, Update
+
+from aiogram_i18n import I18nMiddleware, I18nContext, LazyProxy
+from aiogram_i18n.cores.fluent_runtime_core import FluentRuntimeCore
+from aiogram_i18n.managers import BaseManager
+from aiogram_i18n.types import (
+    KeyboardButton,
+    ReplyKeyboardMarkup,
 )
-from aiogram.utils.i18n import I18n, I18nMiddleware
-from aiogram.utils.i18n import gettext as _
-from aiogram.utils.i18n import lazy_gettext as __
 
 from dotenv import load_dotenv
 
 router = Router()
 
 
-class LangMiddleware(I18nMiddleware):
-    def __init__(self,
-                 i18n: I18n,
-                 i18n_key: Optional[str] = "i18n",
-                 middleware_key: str = "i18n_middleware"):
-        super().__init__(i18n, i18n_key, middleware_key)
+class CustomBaseManager(BaseManager):
+    SUPPORTED_LANG_CODES = ["en", "uk"]
 
-    @staticmethod
-    def _get_message(event: TelegramObject) -> Message:
-        if isinstance(event, Message):
-            return event
-        elif isinstance(event, CallbackQuery):
-            return event.message
-        raise RuntimeError('Wrong event!')
+    def __init__(self, default_locale: str | None = "en") -> None:
+        super().__init__(default_locale)
 
-    async def get_locale(self, event: TelegramObject,
-                         data: Dict[str, Any]) -> str:
-        logging.debug(self._get_message(event))
-        return 'uk'
+    async def set_locale(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    async def get_locale(self, *args: Any, **kwargs: Any) -> str:
+        """
+        FIXME:
+           Мабуть не дуже гарний спосіб бо не враховує
+           всі можливі випадки але ...
+        """
+        if event := kwargs.get("event"):
+            if isinstance(event, Update):
+                if message := event.message:
+                    if from_user := message.from_user:
+                        if lang_code := from_user.language_code:
+                            if lang_code in self.SUPPORTED_LANG_CODES:
+                                return lang_code
+        return self.default_locale
 
 
 def fruits_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         resize_keyboard=True,
-        keyboard=[[
-            KeyboardButton(text=_('Apple')),
-            KeyboardButton(text=_('Banana')),
-            KeyboardButton(text=_('Orange'))
+        keyboard=[
+            [
+                KeyboardButton(text=LazyProxy("apple")),
+                KeyboardButton(text=LazyProxy("banana")),
+                KeyboardButton(text=LazyProxy("orange")),
+            ],
         ],
-        ]
     )
 
 
-@router.message(Command(commands=['start', ]))
-async def start_command(message: Message):
-    await message.answer(_("Hello!"), reply_markup=fruits_keyboard())
+@router.message(Command(commands=["start"]))
+async def start_command(message: Message, i18n: I18nContext):
+    name = message.from_user.mention_html()
+    await message.answer(
+        i18n.get("hello", user=name),
+        reply_markup=fruits_keyboard(),
+    )
 
 
-@router.message(F.text == __('Apple'))
-async def apple(message: Message):
+@router.message(F.text == LazyProxy("apple"))
+async def apple(message: Message, i18n: I18nContext):
     await message.answer("🍎")
 
 
-@router.message(F.text == __('Banana'))
-async def banana(message: Message):
+@router.message(F.text == LazyProxy("banana"))
+async def banana(message: Message, i18n: I18nContext):
     await message.answer("🍌")
 
 
-@router.message(F.text == __('Orange'))
-async def orange(message: Message):
+@router.message(F.text == LazyProxy("orange"))
+async def orange(message: Message, i18n: I18nContext):
     await message.answer("🍊")
 
 
@@ -78,7 +89,7 @@ async def main():
     fmt = "[%(asctime)s] %(message)s (%(levelname)s) [%(name)s]"
     date_fmt = "%d.%m.%y %H:%M:%S"
     logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt=date_fmt)
-    for logger_name in ('asyncio',):
+    for logger_name in ("asyncio",):
         logging.getLogger(logger_name).setLevel(level=logging.WARNING)
 
     logger = logging.getLogger(__name__)
@@ -89,19 +100,17 @@ async def main():
     bot = Bot(token=os.environ["TOKEN"], parse_mode="HTML")
     dp = Dispatcher()
 
-    i18n = I18n(path="locales",
-                default_locale='en',
-                domain="messages")
-    lang_middleware = LangMiddleware(i18n)
+    i18n_middleware = I18nMiddleware(
+        core=FluentRuntimeCore(path="locales/{locale}/LC_MESSAGES"),
+        manager=CustomBaseManager(),
+    )
+    i18n_middleware.setup(dispatcher=dp)
 
-    router.message.outer_middleware(lang_middleware)
-    router.callback_query.outer_middleware(lang_middleware)
-    
     await bot.delete_webhook()
     dp.include_router(router)
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with suppress(KeyboardInterrupt):
         asyncio.run(main())

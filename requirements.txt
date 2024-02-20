@@ -1,2 +1,6 @@
+aiogram~=3.0.0b8
+aiogram_i18n
+fluent_compiler
+fluent.runtime
+
 python-dotenv
-aiogram[i18n]==3.0.0b8
