@@ -9,4 +9,4 @@ banana = Banana
 orange = Orange
 language = Language
 languages = Languages
-new_language = New language: { $lang } { $flag }
+new_language = New language: { locale_name } { locale_flag }

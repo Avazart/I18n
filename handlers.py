@@ -119,10 +119,7 @@ async def set_language(
     logger.debug("set_language")
 
     await i18n.set_locale(callback_data.locale)
-
-    name = i18n.get("locale_name")
-    flag = i18n.get("locale_flag")
     await query.message.answer(
-        i18n.get("new_language", lang=name, flag=flag),
+        i18n.get("new_language"),
         reply_markup=reload_keyboard(),
     )

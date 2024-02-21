@@ -9,4 +9,4 @@ banana = Банан
 orange = Апельсин
 language = Мова
 languages = Мови
-new_language = Нова мова: { $lang } { $flag }
+new_language = Нова мова: { locale_name } { locale_flag }
